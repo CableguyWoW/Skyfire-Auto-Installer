@@ -46,7 +46,7 @@ echo "## $NUM.Installing Skyfire requirements"
 echo "##########################################################"
 echo ""
 sudo apt update -y
-sudo apt-get install build-essential autoconf libtool gcc g++ make cmake subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core libace-dev libncurses5-dev libtbb-dev
+sudo apt-get install build-essential autoconf libtool gcc g++ make cmake subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core libace-dev libncurses5-dev libace-dev -y
 fi
 
 
@@ -63,7 +63,7 @@ echo "mysql-server mysql-server/root_password password $ROOT_PASS" | sudo debcon
 echo "mysql-server mysql-server/root_password_again password $ROOT_PASS" | sudo debconf-set-selections
 
 # Install MySQL server
-sudo apt-get -y install mysql-server
+apt-get install mysql-server mysql-client libmysqlclient-dev -y
 
 # Configure MySQL settings
 MY_CNF="/etc/mysql/mysql.conf.d/mysqld.cnf"

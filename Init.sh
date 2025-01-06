@@ -79,7 +79,7 @@ MYSQL_APT_CONFIG="/root/mysql-apt-config_all.deb"
 # Check if the file already exists
 if [ ! -f "$MYSQL_APT_CONFIG" ]; then
     echo "Downloading MySQL APT Config..."
-    wget https://dev.mysql.com/get/mysql-apt-config_0.8.29-1_all.deb -O "$MYSQL_APT_CONFIG"
+    wget https://dev.mysql.com/get/mysql-apt-config_0.8.14-1_all.deb -O "$MYSQL_APT_CONFIG"
     
     # Install the downloaded package
     DEBIAN_FRONTEND=noninteractive dpkg -i "$MYSQL_APT_CONFIG"
