@@ -40,48 +40,66 @@ else
 
 ((NUM++))
 if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
-echo ""
-echo "##########################################################"
-echo "## $NUM.Installing Skyfire requirements"
-echo "##########################################################"
-echo ""
-cd ~
-sudo apt update -y
-sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
-# Cmake
-echo "Removing any existing CMake installation..."
-sudo apt-get remove -y cmake
-echo "Downloading CMake 3.27.7..."
-wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.tar.gz
-echo "Extracting CMake..."
-tar -zxvf cmake-3.27.7-linux-x86_64.tar.gz
-echo "Installing CMake to /opt..."
-sudo mv cmake-3.27.7-linux-x86_64 /opt/cmake
-echo "Creating symlink for CMake..."
-sudo ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake
-echo "CMake version installed:"
-cmake --version
-# OpenSSL
-echo "Removing existing OpenSSL installation..."
-sudo apt-get remove -y openssl libssl-dev
-echo "Downloading OpenSSL 3.2.2..."
-wget https://www.openssl.org/source/openssl-3.2.2.tar.gz
-echo "Extracting OpenSSL..."
-tar -zxvf openssl-3.2.2.tar.gz
-cd openssl-3.2.2
-echo "Configuring OpenSSL..."
-./config --prefix=/opt/openssl --openssldir=/opt/openssl
-echo "Compiling OpenSSL..."
-make -j$(nproc)
-echo "Installing OpenSSL..."
-sudo make install
-echo "Updating symbolic links..."
-sudo ln -sf /opt/openssl/bin/openssl /usr/local/bin/openssl
-sudo ln -sf /opt/openssl/lib /usr/local/lib/openssl
-echo "Updating shared libraries cache..."
-sudo ldconfig
-echo "OpenSSL version installed:"
-/opt/openssl/bin/openssl version
+  echo ""
+  echo "##########################################################"
+  echo "## $NUM. Installing Skyfire requirements"
+  echo "##########################################################"
+  echo ""
+  
+  # Update and install general dependencies
+  cd ~
+  sudo apt update -y
+  sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
+
+  # Check if the required CMake version (>=3.27.7) is installed
+  CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
+  REQUIRED_CMAKE_VERSION="3.27.7"
+  if [ "$(printf '%s\n' "$REQUIRED_CMAKE_VERSION" "$CURRENT_CMAKE_VERSION" | sort -V | head -n1)" != "$REQUIRED_CMAKE_VERSION" ]; then
+    # If CMake version is lower than 3.27.7, install it
+    echo "Removing any existing CMake installation..."
+    sudo apt-get remove -y cmake
+    echo "Downloading CMake 3.27.7..."
+    wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.tar.gz
+    echo "Extracting CMake..."
+    tar -zxvf cmake-3.27.7-linux-x86_64.tar.gz
+    echo "Installing CMake to /opt..."
+    sudo mv cmake-3.27.7-linux-x86_64 /opt/cmake
+    echo "Creating symlink for CMake..."
+    sudo ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake
+    echo "CMake version installed:"
+    cmake --version
+  else
+    echo "CMake version $CURRENT_CMAKE_VERSION is already up-to-date."
+  fi
+
+  # Check if the required OpenSSL version (>=3.2.2) is installed
+  CURRENT_OPENSSL_VERSION=$(/usr/local/bin/openssl version | awk '{print $2}')
+  REQUIRED_OPENSSL_VERSION="3.2.2"
+  if [ "$(printf '%s\n' "$REQUIRED_OPENSSL_VERSION" "$CURRENT_OPENSSL_VERSION" | sort -V | head -n1)" != "$REQUIRED_OPENSSL_VERSION" ]; then
+    # If OpenSSL version is lower than 3.2.2, install it
+    echo "Removing existing OpenSSL installation..."
+    sudo apt-get remove -y openssl libssl-dev
+    echo "Downloading OpenSSL 3.2.2..."
+    wget https://www.openssl.org/source/openssl-3.2.2.tar.gz
+    echo "Extracting OpenSSL..."
+    tar -zxvf openssl-3.2.2.tar.gz
+    cd openssl-3.2.2
+    echo "Configuring OpenSSL..."
+    ./config --prefix=/opt/openssl --openssldir=/opt/openssl
+    echo "Compiling OpenSSL..."
+    make -j$(nproc)
+    echo "Installing OpenSSL..."
+    sudo make install
+    echo "Updating symbolic links..."
+    sudo ln -sf /opt/openssl/bin/openssl /usr/local/bin/openssl
+    sudo ln -sf /opt/openssl/lib /usr/local/lib/openssl
+    echo "Updating shared libraries cache..."
+    sudo ldconfig
+    echo "OpenSSL version installed:"
+    /opt/openssl/bin/openssl version
+  else
+    echo "OpenSSL version $CURRENT_OPENSSL_VERSION is already up-to-date."
+  fi
 fi
 
 
