@@ -115,32 +115,6 @@ fi
 if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
 echo ""
 echo "##########################################################"
-echo "## $NUM.Installing Ace"
-echo "##########################################################"
-echo ""
-cd ~
-# Download ACE-6.0.0.tar.gz
-wget http://download.dre.vanderbilt.edu/previous_versions/ACE-6.0.0.tar.gz
-# Extract the tarball
-tar xvzf ACE-6.0.0.tar.gz
-# Change to the ACE_wrappers directory
-cd ACE_wrappers/
-# Create a build directory
-mkdir build
-cd build
-# Run the configuration script with sudo (to ensure it has the necessary permissions)
-sudo ../configure --disable-ssl
-# Build ACE using all but one CPU core to speed up the process
-sudo make -j$(( $(nproc) - 1 ))
-# Install ACE system-wide (requires sudo to write to system directories)
-sudo make install
-fi
-
-
-((NUM++))
-if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
-echo ""
-echo "##########################################################"
 echo "## $NUM. Setting up MySQL Users"
 echo "##########################################################"
 echo ""
