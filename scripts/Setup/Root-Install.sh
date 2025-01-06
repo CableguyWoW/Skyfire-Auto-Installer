@@ -47,41 +47,17 @@ echo "##########################################################"
 echo ""
 sudo apt update -y
 sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
-# Cmake 3.27.7 and above
-if command -v cmake &> /dev/null; then
-    CURRENT_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
-    REQUIRED_VERSION="3.27.7"
-    sudo apt-get remove cmake
-    # Compare current version with required version
-    if [[ "$(printf '%s\n' "$REQUIRED_VERSION" "$CURRENT_VERSION" | sort -V | head -n1)" == "$REQUIRED_VERSION" ]]; then
-        echo "CMake version $CURRENT_VERSION is already up-to-date."
-    else
-        echo "CMake version is below $REQUIRED_VERSION. Proceeding with installation..."
-    fi
-else
-    echo "CMake is not installed. Proceeding with installation..."
-fi
-
-# Add Debian Backports repository if not already added
-if ! grep -q "bullseye-backports" /etc/apt/sources.list; then
-    echo "Adding Debian backports repository..."
-    sudo sh -c 'echo "deb http://deb.debian.org/debian bullseye-backports main" >> /etc/apt/sources.list'
-else
-    echo "Backports repository is already added."
-fi
-
-# Update the package list
-echo "Updating package list..."
-sudo apt update
-
-# Install CMake from backports, if available
-echo "Attempting to install CMake from backports..."
-sudo apt install -t bullseye-backports cmake -y || {
-    echo "Failed to install CMake from backports. Exiting..."
-    exit 1
-}
-
-# Verify the CMake version after installation
+# Remove the currently installed version of CMake (if any)
+echo "Removing any existing CMake installation..."
+sudo apt-get remove -y cmake
+echo "Downloading CMake 3.27.7..."
+wget https://github.com/Kitware/CMake/releases/download/v3.27.7/cmake-3.27.7-linux-x86_64.tar.gz
+echo "Extracting CMake..."
+tar -zxvf cmake-3.27.7-linux-x86_64.tar.gz
+echo "Installing CMake to /opt..."
+sudo mv cmake-3.27.7-linux-x86_64 /opt/cmake
+echo "Creating symlink for CMake..."
+sudo ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake
 echo "CMake version installed:"
 cmake --version
 fi
