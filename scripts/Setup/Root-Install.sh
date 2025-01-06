@@ -46,16 +46,15 @@ echo "## $NUM.Installing Skyfire requirements"
 echo "##########################################################"
 echo ""
 sudo apt update -y
-sudo apt-get install build-essential autoconf libtool gcc g++ make cmake subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
+sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
 # Cmake 3.27.7 and above
 if command -v cmake &> /dev/null; then
     CURRENT_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
     REQUIRED_VERSION="3.27.7"
-
+    sudo apt-get remove cmake
     # Compare current version with required version
     if [[ "$(printf '%s\n' "$REQUIRED_VERSION" "$CURRENT_VERSION" | sort -V | head -n1)" == "$REQUIRED_VERSION" ]]; then
         echo "CMake version $CURRENT_VERSION is already up-to-date."
-        exit 0
     else
         echo "CMake version is below $REQUIRED_VERSION. Proceeding with installation..."
     fi
