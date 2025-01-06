@@ -1,0 +1,26 @@
+CORE_BRANCH="master"
+CORE_REPO_URL="https://codeberg.org/ProjectSkyfire/SkyFire_548.git"
+DB_REPO_URL="https://codeberg.org/ProjectSkyfire/database/releases/download/R24.001/SFDB_full_548_24.001_2024_09_04_Release.zip"
+CLIENT_URL="https://cdn.wowlibrary.com/clients/MOP-5.4.8.18414-enUS-Repack-v4.zip"
+
+########## REALM SETTINGS
+REALM_NAME="Dev Realm"
+REALM_ID="1"
+REALM_ZONE="8" # https://wowdev.wiki/DB/Cfg_Categories
+REALM_SECURITY="0" # https://trinitycore.info/en/database/335/auth/account_access#securitylevel
+
+########## SETUP SETTINGS
+SETUP_DEV_WORLD="true"
+SETUP_REALM_PORT="8085"
+SETUP_TYPE="Normal" #Normal or GDB
+SETUP_REALMLIST="true"
+SETUP_SERVICE="deamon" #screen or daemon
+
+########## USER SETTINGS
+SETUP_REALM_USER="dev"
+SETUP_REALM_PASS="password123"
+
+########## MYSQL CONNECTION SETTINGS
+REALM_DB_HOST="127.0.0.1"
+REALM_DB_USER="dev"
+REALM_DB_PASS="password123"

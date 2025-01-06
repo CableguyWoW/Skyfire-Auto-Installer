@@ -1,0 +1,15 @@
+AUTH_BRANCH="master"
+CORE_REPO_URL="https://codeberg.org/ProjectSkyfire/SkyFire_548.git"
+
+########## AUTH SETTINGS
+SETUP_AUTH="true"
+SETUP_SERVICE="deamon" #screen or daemon
+
+########## USER SETTINGS
+SETUP_AUTH_USER="auth"
+SETUP_AUTH_PASS="password123"
+
+########## AUTH SETTINGS
+AUTH_DB_HOST="127.0.0.1"
+AUTH_DB_USER="auth"
+AUTH_DB_PASS="password123"
