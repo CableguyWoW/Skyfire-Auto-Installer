@@ -45,9 +45,10 @@ echo "##########################################################"
 echo "## $NUM.Installing Skyfire requirements"
 echo "##########################################################"
 echo ""
+cd ~
 sudo apt update -y
 sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
-# Remove the currently installed version of CMake (if any)
+# Cmake
 echo "Removing any existing CMake installation..."
 sudo apt-get remove -y cmake
 echo "Downloading CMake 3.27.7..."
@@ -60,6 +61,27 @@ echo "Creating symlink for CMake..."
 sudo ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake
 echo "CMake version installed:"
 cmake --version
+# OpenSSL
+echo "Removing existing OpenSSL installation..."
+sudo apt-get remove -y openssl libssl-dev
+echo "Downloading OpenSSL 3.2.2..."
+wget https://www.openssl.org/source/openssl-3.2.2.tar.gz
+echo "Extracting OpenSSL..."
+tar -zxvf openssl-3.2.2.tar.gz
+cd openssl-3.2.2
+echo "Configuring OpenSSL..."
+./config --prefix=/opt/openssl --openssldir=/opt/openssl
+echo "Compiling OpenSSL..."
+make -j$(nproc)
+echo "Installing OpenSSL..."
+sudo make install
+echo "Updating symbolic links..."
+sudo ln -sf /opt/openssl/bin/openssl /usr/local/bin/openssl
+sudo ln -sf /opt/openssl/lib /usr/local/lib/openssl
+echo "Updating shared libraries cache..."
+sudo ldconfig
+echo "OpenSSL version installed:"
+/opt/openssl/bin/openssl version
 fi
 
 
