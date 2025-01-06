@@ -63,7 +63,7 @@ echo "mysql-server mysql-server/root_password password $ROOT_PASS" | sudo debcon
 echo "mysql-server mysql-server/root_password_again password $ROOT_PASS" | sudo debconf-set-selections
 
 # Install MySQL server
-sudo apt-get install mariadb-server mariadb-client libmysqlclient15-dev libmysql++-dev
+apt-get -y install mysql-server
 
 # Configure MySQL settings
 MY_CNF="/etc/mysql/mysql.conf.d/mysqld.cnf"
@@ -118,7 +118,6 @@ echo "##########################################################"
 echo "## $NUM.Installing Ace"
 echo "##########################################################"
 echo ""
-cd ~
 wget http://download.dre.vanderbilt.edu/previous_versions/ACE-6.0.0.tar.gz
 tar xvzf ACE-6.0.0.tar.gz
 cd ACE_wrappers/

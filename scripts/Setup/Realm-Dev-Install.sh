@@ -131,7 +131,6 @@ fi
 mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "FLUSH PRIVILEGES;"
 echo "Flushed privileges."
 echo "Setup World DB Account completed."
-
 fi
 
 
