@@ -87,7 +87,7 @@ if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
     echo "Configuring OpenSSL..."
     ./config --prefix=/opt/openssl --openssldir=/opt/openssl
     echo "Compiling OpenSSL..."
-    make -j$(nproc)
+    make -j$(( $(nproc) - 1 ))
     echo "Installing OpenSSL..."
     sudo make install
     echo "Updating symbolic links..."

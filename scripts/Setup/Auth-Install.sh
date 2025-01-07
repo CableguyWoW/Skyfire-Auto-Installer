@@ -52,7 +52,8 @@ echo "##########################################################"
 echo "## $NUM.Closing Authserver"
 echo "##########################################################"
 echo ""
-killall screen
+sudo killall screen
+systemctl stop authserverd
 fi
 
 
