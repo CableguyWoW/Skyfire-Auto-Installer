@@ -122,6 +122,8 @@ mkdir /home/$SETUP_AUTH_USER/server/
 mkdir /home/$SETUP_AUTH_USER/logs/
 ## Source install
 git clone --single-branch --branch $AUTH_BRANCH "$CORE_REPO_URL" Skyfire
+# Fix build path
+find /home/$SETUP_AUTH_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_AUTH_USER'/server|g' {} +
 ## Build source
 echo "Building source...."
 cd /home/$SETUP_AUTH_USER/Skyfire/
@@ -161,7 +163,7 @@ echo "## $NUM.Setup Restarter"
 echo "##########################################################"
 echo ""
 if [ "$SETUP_SERVICE" == "deamon" ]; then
-sudo mv /home/$SETUP_REALM_USER/server/etc/authserverd.service.dist /etc/systemd/system/authserverd.service
+sudo mv /home/$SETUP_AUTH_USER/server/etc/authserverd.service.dist /etc/systemd/system/authserverd.service
 sudo chmod 644 /etc/systemd/system/authserverd.service
 sudo chmod +x //etc/systemd/system/authserverd.service
 sudo systemctl daemon-reload
@@ -230,7 +232,11 @@ echo "##########################################################"
 echo "## $NUM.Starting Authserver"
 echo "##########################################################"
 echo ""
+if [ "$SETUP_SERVICE" == "deamon" ]; then
+sudo systemctl start authserverd
+elif [ "$SETUP_SERVICE" == "screen" ]; then
 /home/$SETUP_AUTH_USER/server/scripts/Restarter/Auth/start.sh
+fi
 echo "Authserver started"
 fi
 

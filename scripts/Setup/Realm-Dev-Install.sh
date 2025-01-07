@@ -148,6 +148,8 @@ mkdir /home/$SETUP_REALM_USER/server/logs/crashes/
 mkdir /home/$SETUP_REALM_USER/server/data/
 ## Source install
 git clone --single-branch --branch $CORE_BRANCH "$CORE_REPO_URL" Skyfire
+# Fix build path
+find /home/$SETUP_REALM_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_REALM_USER'/server|g' {} +
 ## Build source
 echo "Building Source"
 cd /home/$SETUP_REALM_USER/Skyfire/
