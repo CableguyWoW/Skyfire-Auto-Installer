@@ -164,7 +164,7 @@ echo "## $NUM.Setup Database Data"
 echo "##########################################################"
 echo ""
 # Applying SQL base
-SQL_FILE="/home/$SETUP_REALM_USER/Skyfire/sql/base/auth/auth.sql"
+SQL_FILE="/home/$SETUP_AUTH_USER/Skyfire/sql/base/auth/auth.sql"
 # Check if 'uptime' table exists in the 'auth' database
 TABLE_CHECK=$(mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "SHOW TABLES LIKE 'uptime';" auth | grep -c "uptime")
 if [ "$TABLE_CHECK" -gt 0 ]; then
