@@ -127,7 +127,9 @@ echo "Building source...."
 cd /home/$SETUP_AUTH_USER/Skyfire/
 mkdir /home/$SETUP_AUTH_USER/Skyfire/build
 cd /home/$SETUP_AUTH_USER/Skyfire/build
-cmake /home/$SETUP_AUTH_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_AUTH_USER/server -DSCRIPTS="none" -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=0 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0 && make -j $(( $(nproc) - 1 )) && make install
+cmake /home/$SETUP_AUTH_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_AUTH_USER/server -DSCRIPTS="none" -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0 -DPREPARE_COMMANDS=0 -DPREPARE_SPELLS=0 -DPREPARE_CUSTOM=0 -DPREPARE_EK=0 -DPREPARE_EVENTS=0 -DPREPARE_KALIMDOR=0 -DPREPARE_MAELSTROM=0 -DPREPARE_NORTHREND=0 -DPREPARE_OUTDOORPVP=0 -DPREPARE_OUTLAND=0 -DPREPARE_PANDARIA=0 -DPREPARE_PET=0 -DPREPARE_WORLD=0
+make -j $(( $(nproc) - 1 ))
+make install
 fi
 
 
@@ -147,7 +149,7 @@ fi
 echo "Changing Config values"
 sed -i 's^LogsDir = ""^LogsDir = "/home/'${SETUP_AUTH_USER}'/server/logs"^g' authserver.conf
 sed -i "s/Updates.EnableDatabases = 0/Updates.EnableDatabases = 1/g" authserver.conf
-sed -i "s/127.0.0.1;3306;trinity;trinity;auth/${AUTH_DB_HOST};3306;${AUTH_DB_USER};${AUTH_DB_PASS};${AUTH_DB_USER};/g" authserver.conf
+sed -i "s/127.0.0.1;3306;skyfire;skyfire;auth/${AUTH_DB_HOST};3306;${AUTH_DB_USER};${AUTH_DB_PASS};${AUTH_DB_USER};/g" authserver.conf
 fi
 
 

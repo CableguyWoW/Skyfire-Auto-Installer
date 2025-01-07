@@ -49,7 +49,7 @@ echo ""
 # Update and install general dependencies
 cd ~
 sudo apt update -y
-sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libncurses5-dev -y
+sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev zlib1g-dev libbz2-dev git-core lsb-release libncurses5-dev -y
 
 # Check if the required CMake version (>=3.27.7) is installed
 CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
