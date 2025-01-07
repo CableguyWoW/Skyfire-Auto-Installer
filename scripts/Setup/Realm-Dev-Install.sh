@@ -202,16 +202,14 @@ echo "##########################################################"
 echo ""
 
 FILENAME="${DB_REPO_URL##*/}"           # Get the filename from the URL
-SQLNAME="${FILENAME%.7z}.sql"           # Replace .7z with .sql
+FOLDERNAME="${FILENAME%.zip}"  # Removes .zip from the filename
 TARGET_DIR="/home/$SETUP_REALM_USER/server"
-
 cd "$TARGET_DIR" || { echo "Directory does not exist: $TARGET_DIR"; exit 1; }
-
-if [ -f "$SQLNAME" ]; then
+if [ -d "$TARGET_DIR/$FOLDERNAME" ]; then
 	while true; do
-		read -p "$SQLNAME already exists. Redownload? (y/n): " file_choice
+		read -p "$FOLDERNAME already exists. Redownload? (y/n): " file_choice
 		if [[ "$file_choice" =~ ^[Yy]$ ]]; then
-			rm -f "$FILENAME" "$SQLNAME"  # Remove both files
+			rm -rf $TARGET_DIR/$FOLDERNAME
 			wget "$DB_REPO_URL"
 			break
 		elif [[ "$file_choice" =~ ^[Nn]$ ]]; then
@@ -226,9 +224,36 @@ fi
 
 # Ensure the file exists before extracting
 if [ -f "$FILENAME" ]; then
-	7z e "$FILENAME"
-	rm "$FILENAME"
+	unzip -o "$TARGET_DIR/$FILENAME"
+	rm "$TARGET_DIR/$FILENAME"
 fi
+
+# Applying SQL World base
+WORLD_1_SQL_FILE="/home/$SETUP_REALM_USER/server/$FOLDERNAME/main_db/procs/stored_procs.sql"
+WORLD_2_SQL_FILE="/home/$SETUP_REALM_USER/server/$FOLDERNAME/main_db/world/$FOLDERNAME.sql"
+# Check if 'creature_template' table exists in the 'world' database
+TABLE_CHECK=$(mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "SHOW TABLES LIKE 'creature_template';" ${SETUP_REALM_USER}_world | grep -c "creature_template")
+if [ "$TABLE_CHECK" -gt 0 ]; then
+    echo "'creature_template' table exists. Skipping SQL execution."
+else
+    echo "'creature_template' table does not exist. Proceeding to execute SQL file..."
+    mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_world < "$WORLD_1_SQL_FILE"
+    mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_world < "$WORLD_2_SQL_FILE"
+fi
+fi
+
+# Applying SQL Character base
+SQL_FILE="/home/$SETUP_REALM_USER/Skyfire/sql/base/character/character.sql"
+# Check if 'worldstates' table exists in the 'characters' database
+TABLE_CHECK=$(mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "SHOW TABLES LIKE 'worldstates';" ${SETUP_REALM_USER}_characters | grep -c "worldstates")
+if [ "$TABLE_CHECK" -gt 0 ]; then
+    echo "'worldstates' table exists. Skipping SQL execution."
+else
+    echo "'worldstates' table does not exist. Proceeding to execute SQL file..."
+    mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_characters < "$SQL_FILE"
+fi
+fi
+
 fi
 
 
