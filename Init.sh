@@ -48,7 +48,7 @@ echo "## $NUM.Install Prerequisites"
 echo "##########################################################"
 echo ""
 sudo apt install curl p7zip-full dos2unix gnupg --assume-yes
-
+sudo apt autoremove --assume-yes
 fi
 
 

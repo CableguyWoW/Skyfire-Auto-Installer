@@ -93,7 +93,6 @@ echo "Removing Debian Testing repository from /etc/apt/sources.list"
 sudo sed -i '/testing/d' /etc/apt/sources.list
 echo "Updating package lists again after removing Testing repository..."
 sudo apt update
-sudo apt autoremove
 
 fi
 
