@@ -49,7 +49,7 @@ echo ""
 # Update and install general dependencies
 cd ~
 sudo apt update -y
-sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
+sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libncurses5-dev -y
 
 # Check if the required CMake version (>=3.27.7) is installed
 CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
@@ -72,42 +72,29 @@ else
     echo "CMake version $CURRENT_CMAKE_VERSION is already up-to-date."
 fi
 
-# Check if the required OpenSSL version (>=3.2.2) is installed
-CURRENT_OPENSSL_VERSION=$(/usr/local/bin/openssl version | awk '{print $2}')
-REQUIRED_OPENSSL_VERSION="3.2.2"
 
-if [ "$(printf '%s\n' "$REQUIRED_OPENSSL_VERSION" "$CURRENT_OPENSSL_VERSION" | sort -V | head -n1)" != "$REQUIRED_OPENSSL_VERSION" ]; then
-    # If OpenSSL version is lower than 3.2.2, install it
-    echo "Removing existing OpenSSL installation..."
-    sudo apt-get remove -y openssl libssl-dev
-    echo "Downloading OpenSSL 3.2.2..."
-    wget https://www.openssl.org/source/openssl-3.2.2.tar.gz
-    echo "Extracting OpenSSL..."
-    tar -zxvf openssl-3.2.2.tar.gz
-    cd openssl-3.2.2
-    echo "Configuring OpenSSL..."
-    ./config --prefix=/opt/openssl --openssldir=/opt/openssl
-    echo "Compiling OpenSSL..."
-    make -j$(( $(nproc) - 1 ))
-    echo "Installing OpenSSL..."
-    sudo make install
-    echo "Updating symbolic links..."
-    sudo ln -sf /opt/openssl/bin/openssl /usr/local/bin/openssl
-    sudo ln -sf /opt/openssl/lib /usr/local/lib/openssl
-    echo "Updating shared libraries cache..."
-    sudo ldconfig
-    # Set environment variables to use the new OpenSSL
-    echo "Setting environment variables..."
-    echo "export PATH=/opt/openssl/bin:\$PATH" >> ~/.bashrc
-    echo "export LD_LIBRARY_PATH=/opt/openssl/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
-    echo "export OPENSSL_CONF=/opt/openssl/openssl.cnf" >> ~/.bashrc
-    # Apply the changes to the current session
-    source ~/.bashrc
-    echo "OpenSSL version installed:"
-    /opt/openssl/bin/openssl version
-    else
-    echo "OpenSSL version $CURRENT_OPENSSL_VERSION is already up-to-date."
-    fi
+REPO_URL="deb http://deb.debian.org/debian testing main"
+
+echo "Backing up /etc/apt/sources.list to /etc/apt/sources.list.bak"
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+
+if ! grep -q "$REPO_URL" /etc/apt/sources.list; then
+  echo "Adding Debian Testing repository to /etc/apt/sources.list"
+  echo "$REPO_URL" | sudo tee -a /etc/apt/sources.list
+else
+  echo "Debian Testing repository is already in /etc/apt/sources.list"
+fi
+
+echo "Updating package lists..."
+sudo apt update
+echo "Installing OpenSSL from Testing repository..."
+sudo apt -t testing install -y openssl libssl-dev libace-dev
+echo "Removing Debian Testing repository from /etc/apt/sources.list"
+sudo sed -i '/testing/d' /etc/apt/sources.list
+echo "Updating package lists again after removing Testing repository..."
+sudo apt update
+
+
 fi
 
 
