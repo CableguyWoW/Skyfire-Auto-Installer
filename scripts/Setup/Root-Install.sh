@@ -40,21 +40,21 @@ else
 
 ((NUM++))
 if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
-  echo ""
-  echo "##########################################################"
-  echo "## $NUM. Installing Skyfire requirements"
-  echo "##########################################################"
-  echo ""
-  
-  # Update and install general dependencies
-  cd ~
-  sudo apt update -y
-  sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
+echo ""
+echo "##########################################################"
+echo "## $NUM. Installing Skyfire requirements"
+echo "##########################################################"
+echo ""
 
-  # Check if the required CMake version (>=3.27.7) is installed
-  CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
-  REQUIRED_CMAKE_VERSION="3.27.7"
-  if [ "$(printf '%s\n' "$REQUIRED_CMAKE_VERSION" "$CURRENT_CMAKE_VERSION" | sort -V | head -n1)" != "$REQUIRED_CMAKE_VERSION" ]; then
+# Update and install general dependencies
+cd ~
+sudo apt update -y
+sudo apt-get install build-essential autoconf libtool gcc g++ make subversion git patch wget links zip unzip openssl libssl-dev libreadline-gplv2-dev zlib1g-dev libbz2-dev git-core lsb-release libace-dev libncurses5-dev libace-dev -y
+
+# Check if the required CMake version (>=3.27.7) is installed
+CURRENT_CMAKE_VERSION=$(cmake --version | head -n 1 | awk '{print $3}')
+REQUIRED_CMAKE_VERSION="3.27.7"
+if [ "$(printf '%s\n' "$REQUIRED_CMAKE_VERSION" "$CURRENT_CMAKE_VERSION" | sort -V | head -n1)" != "$REQUIRED_CMAKE_VERSION" ]; then
     # If CMake version is lower than 3.27.7, install it
     echo "Removing any existing CMake installation..."
     sudo apt-get remove -y cmake
@@ -68,14 +68,15 @@ if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
     sudo ln -sf /opt/cmake/bin/cmake /usr/local/bin/cmake
     echo "CMake version installed:"
     cmake --version
-  else
+else
     echo "CMake version $CURRENT_CMAKE_VERSION is already up-to-date."
-  fi
+fi
 
-  # Check if the required OpenSSL version (>=3.2.2) is installed
-  CURRENT_OPENSSL_VERSION=$(/usr/local/bin/openssl version | awk '{print $2}')
-  REQUIRED_OPENSSL_VERSION="3.2.2"
-  if [ "$(printf '%s\n' "$REQUIRED_OPENSSL_VERSION" "$CURRENT_OPENSSL_VERSION" | sort -V | head -n1)" != "$REQUIRED_OPENSSL_VERSION" ]; then
+# Check if the required OpenSSL version (>=3.2.2) is installed
+CURRENT_OPENSSL_VERSION=$(/usr/local/bin/openssl version | awk '{print $2}')
+REQUIRED_OPENSSL_VERSION="3.2.2"
+
+if [ "$(printf '%s\n' "$REQUIRED_OPENSSL_VERSION" "$CURRENT_OPENSSL_VERSION" | sort -V | head -n1)" != "$REQUIRED_OPENSSL_VERSION" ]; then
     # If OpenSSL version is lower than 3.2.2, install it
     echo "Removing existing OpenSSL installation..."
     sudo apt-get remove -y openssl libssl-dev
@@ -95,11 +96,18 @@ if [ "$1" = "all" ] || [ "$1" = "$NUM" ]; then
     sudo ln -sf /opt/openssl/lib /usr/local/lib/openssl
     echo "Updating shared libraries cache..."
     sudo ldconfig
+    # Set environment variables to use the new OpenSSL
+    echo "Setting environment variables..."
+    echo "export PATH=/opt/openssl/bin:\$PATH" >> ~/.bashrc
+    echo "export LD_LIBRARY_PATH=/opt/openssl/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
+    echo "export OPENSSL_CONF=/opt/openssl/openssl.cnf" >> ~/.bashrc
+    # Apply the changes to the current session
+    source ~/.bashrc
     echo "OpenSSL version installed:"
     /opt/openssl/bin/openssl version
-  else
+    else
     echo "OpenSSL version $CURRENT_OPENSSL_VERSION is already up-to-date."
-  fi
+    fi
 fi
 
 
