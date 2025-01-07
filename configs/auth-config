@@ -3,7 +3,7 @@ CORE_REPO_URL="https://codeberg.org/ProjectSkyfire/SkyFire_548.git"
 
 ########## AUTH SETTINGS
 SETUP_AUTH="true"
-SETUP_SERVICE="deamon" #screen or daemon
+SETUP_SERVICE="screen" #screen or daemon
 
 ########## USER SETTINGS
 SETUP_AUTH_USER="auth"

@@ -14,7 +14,7 @@ SETUP_DEV_WORLD="true"
 SETUP_REALM_PORT="8085"
 SETUP_TYPE="Normal" #Normal or GDB
 SETUP_REALMLIST="true"
-SETUP_SERVICE="deamon" #screen or daemon
+SETUP_SERVICE="screen" #screen or daemon
 
 ########## USER SETTINGS
 SETUP_REALM_USER="dev"
