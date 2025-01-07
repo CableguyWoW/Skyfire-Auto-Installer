@@ -243,7 +243,7 @@ fi
 fi
 
 # Applying SQL Character base
-SQL_FILE="/home/$SETUP_REALM_USER/Skyfire/sql/base/character/character.sql"
+SQL_FILE="/home/$SETUP_REALM_USER/Skyfire/sql/base/characters_database.sql"
 # Check if 'worldstates' table exists in the 'characters' database
 TABLE_CHECK=$(mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "SHOW TABLES LIKE 'worldstates';" ${SETUP_REALM_USER}_characters | grep -c "worldstates")
 if [ "$TABLE_CHECK" -gt 0 ]; then
