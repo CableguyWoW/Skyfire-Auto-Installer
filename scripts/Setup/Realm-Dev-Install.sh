@@ -8,10 +8,9 @@
 . /Skyfire-Auto-Installer/configs/realm-dev-config
 
 if [ $USER != "$SETUP_REALM_USER" ]; then
-
-echo "You must run this script under the $SETUP_REALM_USER user!"
-
-else
+    echo "You must run this script under the $SETUP_REALM_USER user!"
+    exit 1
+fi
 
 ## LETS START
 echo ""
@@ -146,18 +145,58 @@ mkdir /home/$SETUP_REALM_USER/server/
 mkdir /home/$SETUP_REALM_USER/server/logs/
 mkdir /home/$SETUP_REALM_USER/server/logs/crashes/
 mkdir /home/$SETUP_REALM_USER/server/data/
-## Source install
-git clone --single-branch --branch $CORE_BRANCH "$CORE_REPO_URL" Skyfire
-# Fix build path
-find /home/$SETUP_REALM_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_REALM_USER'/server|g' {} +
-## Build source
-echo "Building Source"
-cd /home/$SETUP_REALM_USER/Skyfire/
-mkdir /home/$SETUP_REALM_USER/Skyfire/build
-cd /home/$SETUP_REALM_USER/Skyfire/build
-cmake /home/$SETUP_REALM_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_REALM_USER/server -DSCRIPTS_EASTERNKINGDOMS="disabled" -DSCRIPTS_EVENTS="disabled" -DSCRIPTS_KALIMDOR="disabled" -DSCRIPTS_NORTHREND="disabled" -DSCRIPTS_OUTDOORPVP="disabled" -DSCRIPTS_OUTLAND="disabled" -DWITH_DYNAMIC_LINKING=ON -DSCRIPTS="dynamic" -DSCRIPTS_CUSTOM="dynamic" -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
-make -j $(( $(nproc) - 1 ))
-make install
+if [ -d "/home/$SETUP_REALM_USER/Skyfire" ]; then
+    if [ "$1" = "update" ]; then
+        while true; do
+            read -p "Skyfire source already exists. Redownload? (y/n): " file_choice
+            if [[ "$file_choice" =~ ^[Yy]$ ]]; then
+                rm -rf /home/$SETUP_REALM_USER/Skyfire
+                ## Source install
+                git clone --single-branch --branch $CORE_BRANCH "$CORE_REPO_URL" Skyfire
+                # Fix build path
+                find /home/$SETUP_REALM_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_REALM_USER'/server|g' {} +
+                break
+            elif [[ "$file_choice" =~ ^[Nn]$ ]]; then
+                echo "Skipping download." && break
+            else
+                echo "Please answer y (yes) or n (no)."
+            fi
+        done
+    fi
+fi
+if [ -f "/home/$SETUP_REALM_USER/server/bin/worldserver" ]; then
+    if [ "$1" != "update" ]; then
+        while true; do
+            read -p "Worldserver already exists. Recompile source? (y/n): " file_choice
+            if [[ "$file_choice" =~ ^[Yy]$ ]]; then
+                ## Build source
+                echo "Building Source"
+                cd /home/$SETUP_REALM_USER/Skyfire/
+                rm -rf /home/$SETUP_REALM_USER/Skyfire/build
+                mkdir /home/$SETUP_REALM_USER/Skyfire/build
+                cd /home/$SETUP_REALM_USER/Skyfire/build
+                cmake /home/$SETUP_REALM_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_REALM_USER/server -DSCRIPTS_EASTERNKINGDOMS="disabled" -DSCRIPTS_EVENTS="disabled" -DSCRIPTS_KALIMDOR="disabled" -DSCRIPTS_NORTHREND="disabled" -DSCRIPTS_OUTDOORPVP="disabled" -DSCRIPTS_OUTLAND="disabled" -DWITH_DYNAMIC_LINKING=ON -DSCRIPTS="dynamic" -DSCRIPTS_CUSTOM="dynamic" -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
+                make -j $(( $(nproc) - 1 ))
+                make install
+                break
+            elif [[ "$file_choice" =~ ^[Nn]$ ]]; then
+                echo "Skipping download." && break
+            else
+                echo "Please answer y (yes) or n (no)."
+            fi
+        done
+    else
+        ## Build source
+        echo "Building Source"
+        cd /home/$SETUP_REALM_USER/Skyfire/
+        rm -rf /home/$SETUP_REALM_USER/Skyfire/build
+        mkdir /home/$SETUP_REALM_USER/Skyfire/build
+        cd /home/$SETUP_REALM_USER/Skyfire/build
+        cmake /home/$SETUP_REALM_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_REALM_USER/server -DSCRIPTS_EASTERNKINGDOMS="disabled" -DSCRIPTS_EVENTS="disabled" -DSCRIPTS_KALIMDOR="disabled" -DSCRIPTS_NORTHREND="disabled" -DSCRIPTS_OUTDOORPVP="disabled" -DSCRIPTS_OUTLAND="disabled" -DWITH_DYNAMIC_LINKING=ON -DSCRIPTS="dynamic" -DSCRIPTS_CUSTOM="dynamic" -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=1 -DCMAKE_BUILD_TYPE=RelWithDebInfo -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
+        make -j $(( $(nproc) - 1 ))
+        make install
+    fi
+fi
 fi
 
 
@@ -182,14 +221,13 @@ sed -i 's^LogsDir = ""^LogsDir = "/home/'${SETUP_REALM_USER}'/server/logs"^g' wo
 sed -i 's^DataDir = "."^DataDir = "/home/'${SETUP_REALM_USER}'/server/data"^g' worldserver.conf
 #sed -i 's^BuildDirectory  = ""^BuildDirectory  = "/home/'${SETUP_REALM_USER}'/Skyfire/build"^g' worldserver.conf
 #sed -i 's^SourceDirectory  = ""^SourceDirectory  = "/home/'${SETUP_REALM_USER}'/Skyfire/"^g' worldserver.conf
-sed -i 's/Welcome to a SkyFire server./Welcome to the '${REALM_NAME}'/g' worldserver.conf
+REALM_NAME=$(printf '%s\n' "$REALM_NAME" | sed "s/'/'\\\\''/g")
+sed -i "s|Welcome to a SkyFire server|Welcome to the '${REALM_NAME}'|g" worldserver.conf
 sed -i 's/PlayerLimit = 100/PlayerLimit = 10000/g' worldserver.conf
-## LoginDatabaseInfo
-sed -i "s/127.0.0.1;3306;skyfire;skyfire;auth/${AUTH_DB_HOST};3306;${AUTH_DB_USER};${AUTH_DB_PASS};${AUTH_DB_USER};/g" worldserver.conf
-## WorldDatabaseInfo
-sed -i "s/127.0.0.1;3306;skyfire;skyfire;world/${REALM_DB_HOST};3306;${REALM_DB_USER};${REALM_DB_PASS};${REALM_DB_USER}_world/g" worldserver.conf
-## CharacterDatabaseInfo
-sed -i "s/127.0.0.1;3306;skyfire;skyfire;characters/${REALM_DB_HOST};3306;${REALM_DB_USER};${REALM_DB_PASS};${REALM_DB_USER}_character/g" worldserver.conf
+## DatabaseInfo
+sed -i "s|127.0.0.1;3306;skyfire;skyfire;auth|${AUTH_DB_HOST};3306;${AUTH_DB_USER};${AUTH_DB_PASS};${AUTH_DB_USER}|g" worldserver.conf
+sed -i "s|127.0.0.1;3306;skyfire;skyfire;world|${REALM_DB_HOST};3306;${REALM_DB_USER};${REALM_DB_PASS};${REALM_DB_USER}_world|g" worldserver.conf
+sed -i "s|127.0.0.1;3306;skyfire;skyfire;characters|${REALM_DB_HOST};3306;${REALM_DB_USER};${REALM_DB_PASS};${REALM_DB_USER}_character|g" worldserver.conf
 fi
 
 
@@ -238,20 +276,19 @@ if [ "$TABLE_CHECK" -gt 0 ]; then
 else
     echo "'creature_template' table does not exist. Proceeding to execute SQL file..."
     mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_world < "$WORLD_1_SQL_FILE"
+    echo "Importing $FILENAME this may take a while..."
     mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_world < "$WORLD_2_SQL_FILE"
-fi
 fi
 
 # Applying SQL Character base
 SQL_FILE="/home/$SETUP_REALM_USER/Skyfire/sql/base/characters_database.sql"
 # Check if 'worldstates' table exists in the 'characters' database
-TABLE_CHECK=$(mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "SHOW TABLES LIKE 'worldstates';" ${SETUP_REALM_USER}_characters | grep -c "worldstates")
+TABLE_CHECK=$(mysql -u "$ROOT_USER" -p"$ROOT_PASS" -e "SHOW TABLES LIKE 'worldstates';" ${SETUP_REALM_USER}_character | grep -c "worldstates")
 if [ "$TABLE_CHECK" -gt 0 ]; then
     echo "'worldstates' table exists. Skipping SQL execution."
 else
     echo "'worldstates' table does not exist. Proceeding to execute SQL file..."
-    mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_characters < "$SQL_FILE"
-fi
+    mysql -u "$ROOT_USER" -p"$ROOT_PASS" ${SETUP_REALM_USER}_character < "$SQL_FILE"
 fi
 
 fi
@@ -627,7 +664,4 @@ echo "TIP - To exit the screen press ALT + A + D"
 echo ""
 fi
 
-fi
-fi
-fi
 fi

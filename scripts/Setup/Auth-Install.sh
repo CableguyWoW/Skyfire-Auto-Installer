@@ -117,23 +117,94 @@ echo "##########################################################"
 echo "## $NUM.Pulling source"
 echo "##########################################################"
 echo ""
+
+
+
+fi
+
+
+
+
+
+
+((NUM++))
+if [ "$1" = "all" ] || [ "$1" = "update" ] || [ "$1" = "$NUM" ]; then
+echo ""
+echo "##########################################################"
+echo "## $NUM.Pulling Source"
+echo "##########################################################"
+echo ""
 cd /home/$SETUP_AUTH_USER/
 mkdir /home/$SETUP_AUTH_USER/
 mkdir /home/$SETUP_AUTH_USER/server/
 mkdir /home/$SETUP_AUTH_USER/logs/
-## Source install
-git clone --single-branch --branch $AUTH_BRANCH "$CORE_REPO_URL" Skyfire
-# Fix build path
-find /home/$SETUP_AUTH_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_AUTH_USER'/server|g' {} +
-## Build source
-echo "Building source...."
-cd /home/$SETUP_AUTH_USER/Skyfire/
-mkdir /home/$SETUP_AUTH_USER/Skyfire/build
-cd /home/$SETUP_AUTH_USER/Skyfire/build
-cmake /home/$SETUP_AUTH_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_AUTH_USER/server -DSCRIPTS=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
-make -j $(( $(nproc) - 1 ))
-make install
+if [ -d "/home/$SETUP_AUTH_USER/Skyfire" ]; then
+    if [ "$1" = "update" ]; then
+        while true; do
+            read -p "Skyfire source already exists. Redownload? (y/n): " file_choice
+            if [[ "$file_choice" =~ ^[Yy]$ ]]; then
+                rm -rf /home/$SETUP_AUTH_USER/Skyfire/
+                ## Source install
+                git clone --single-branch --branch $AUTH_BRANCH "$CORE_REPO_URL" Skyfire
+                # Fix build path
+                find /home/$SETUP_AUTH_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_AUTH_USER'/server|g' {} +
+                break
+            elif [[ "$file_choice" =~ ^[Nn]$ ]]; then
+                echo "Skipping download." && break
+            else
+                echo "Please answer y (yes) or n (no)."
+            fi
+        done
+    fi
+else
+    ## Source install
+    git clone --single-branch --branch $AUTH_BRANCH "$CORE_REPO_URL" Skyfire
+    # Fix build path
+    find /home/$SETUP_AUTH_USER/Skyfire -type f -exec sed -i 's|/usr/local/skyfire-server|/home/'$SETUP_AUTH_USER'/server|g' {} +
 fi
+if [ -f "/home/$SETUP_AUTH_USER/server/bin/authserver" ]; then
+    if [ "$1" != "update" ]; then
+        while true; do
+            read -p "Authserver already exists. Recompile source? (y/n): " file_choice
+            if [[ "$file_choice" =~ ^[Yy]$ ]]; then
+                ## Build source
+                echo "Building source...."
+                cd /home/$SETUP_AUTH_USER/Skyfire/
+                rm -rf /home/$SETUP_AUTH_USER/Skyfire/build
+                mkdir /home/$SETUP_AUTH_USER/Skyfire/build
+                cd /home/$SETUP_AUTH_USER/Skyfire/build
+                cmake /home/$SETUP_AUTH_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_AUTH_USER/server -DSCRIPTS=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
+                make -j $(( $(nproc) - 1 ))
+                make install
+                break
+            elif [[ "$file_choice" =~ ^[Nn]$ ]]; then
+                echo "Skipping download." && break
+            else
+                echo "Please answer y (yes) or n (no)."
+            fi
+        done
+    else
+        ## Build source
+        echo "Building source...."
+        cd /home/$SETUP_AUTH_USER/Skyfire/
+        mkdir /home/$SETUP_AUTH_USER/Skyfire/build
+        cd /home/$SETUP_AUTH_USER/Skyfire/build
+        cmake /home/$SETUP_AUTH_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_AUTH_USER/server -DSCRIPTS=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
+        make -j $(( $(nproc) - 1 ))
+        make install
+    fi
+else
+    ## Build source
+    echo "Building source...."
+    cd /home/$SETUP_AUTH_USER/Skyfire/
+    mkdir /home/$SETUP_AUTH_USER/Skyfire/build
+    cd /home/$SETUP_AUTH_USER/Skyfire/build
+    cmake /home/$SETUP_AUTH_USER/Skyfire/ -DCMAKE_INSTALL_PREFIX=/home/$SETUP_AUTH_USER/server -DSCRIPTS=0 -DUSE_COREPCH=1 -DUSE_SCRIPTPCH=1 -DSERVERS=1 -DTOOLS=0 -DCMAKE_BUILD_TYPE=Release -DWITH_COREDEBUG=0 -DWITH_WARNINGS=0
+    make -j $(( $(nproc) - 1 ))
+    make install
+fi
+fi
+
 
 
 ((NUM++))
