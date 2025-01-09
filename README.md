@@ -58,7 +58,7 @@ The following tasks are related to the Realm server setup:
 - **Pull and Setup Source**: Download and configure the source code for the World server.
 - **Setup Worldserver Config**: Configure the settings for the World server.
 - **Pull and Setup Database**: Download and configure the database for the World server.
-- **Download 3.3.5a Client**: Fetch the necessary client files for version 5.4.8 MOP.
+- **Download 5.4.8 MOP Client**: Fetch the necessary client files for version 5.4.8 MOP.
 - **Setup Client Tools**: Prepare tools necessary for managing the client.
 - **Run Map/DBC Extractor**: Extract Map and DBC files for use in the game world.
 - **Run VMap Extractor**: Extract VMap files for navigation and environment mapping.
